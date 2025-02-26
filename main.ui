@@ -6,27 +6,53 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>906</width>
-    <height>608</height>
+    <width>916</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="horizontalLayoutWidget">
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>-1</x>
-     <y>-1</y>
+     <x>0</x>
+     <y>60</y>
      <width>911</width>
-     <height>611</height>
+     <height>551</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTableWidget" name="tableWidget"/>
     </item>
    </layout>
+  </widget>
+  <widget class="QPushButton" name="add_button">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>131</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Добавить запись</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="edit_button">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>10</y>
+     <width>131</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Изменить запись</string>
+   </property>
   </widget>
  </widget>
  <resources/>
