@@ -1,16 +1,17 @@
-import sqlite3
+import os
 import sys
 
 from PyQt6.QtWidgets import QApplication, QTableWidget, QTableWidgetItem, QWidget, QDialog, QMessageBox
-from PyQt6.uic import loadUi
 
+import db
 from add_edit_form import AddEditCoffeeForm
+from UI.ui_main import Ui_MainForm
 
 
-class CoffeeApp(QWidget):
+class CoffeeApp(Ui_MainForm, QWidget):
     def __init__(self):
         super().__init__()
-        loadUi("main.ui", self)
+        self.setupUi(self)
         self.setWindowTitle("Информация о кофе")
 
         self.table = self.findChild(QTableWidget, "tableWidget")
@@ -42,26 +43,23 @@ class CoffeeApp(QWidget):
             QMessageBox.warning(self, "Ошибка", "Выберите запись для редактирования")
 
     def load_data(self):
-        try:
-            con = sqlite3.connect("coffee.sqlite")
-            cur = con.cursor()
-            cur.execute("SELECT * FROM coffee")
-            rows = cur.fetchall()
+        rows = db.get_coffee_list()
+        self.table.setRowCount(len(rows))
 
-            self.table.setRowCount(len(rows))
+        for row_index, row_data in enumerate(rows):
+            for col_index, col_data in enumerate(row_data):
+                item = QTableWidgetItem(str(col_data))
+                self.table.setItem(row_index, col_index, item)
 
-            for row_index, row_data in enumerate(rows):
-                for col_index, col_data in enumerate(row_data):
-                    item = QTableWidgetItem(str(col_data))
-                    self.table.setItem(row_index, col_index, item)
 
-            con.close()
-        except sqlite3.Error as e:
-            print(f"Ошибка: {e}")
+def exception_logger(*args):
+    print(*args)
+    sys.__excepthook__(*args)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    sys.excepthook = exception_logger
     window = CoffeeApp()
     window.show()
     sys.exit(app.exec())

@@ -1,13 +1,13 @@
-import sqlite3
-
 from PyQt6.QtWidgets import QDialog, QMessageBox
-from PyQt6.uic import loadUi
+
+import db
+from UI.ui_add_edit_coffee import Ui_EditForm
 
 
-class AddEditCoffeeForm(QDialog):
+class AddEditCoffeeForm(Ui_EditForm, QDialog):
     def __init__(self, parent=None, coffee_id=None):
         super().__init__(parent)
-        loadUi("addEditCoffeeForm.ui", self)
+        self.setupUi(self)
         self.coffee_id = coffee_id
 
         if self.coffee_id:
@@ -16,23 +16,15 @@ class AddEditCoffeeForm(QDialog):
         self.pushButton.clicked.connect(self.save_coffee)
 
     def load_data(self):
-        try:
-            con = sqlite3.connect("coffee.sqlite")
-            cur = con.cursor()
-            cur.execute("SELECT * FROM coffee WHERE id=?", (self.coffee_id,))
-            coffee_data = cur.fetchone()
 
-            if coffee_data:
-                self.lineEdit.setText(coffee_data[1])
-                self.lineEdit_2.setText(coffee_data[2])
-                self.comboBox.setCurrentText(coffee_data[3])
-                self.textEdit.setPlainText(coffee_data[4])
-                self.doubleSpinBox.setValue(coffee_data[5])
-                self.spinBox.setValue(coffee_data[6])
-
-            con.close()
-        except sqlite3.Error as e:
-            print(f"Ошибка: {e}")
+        coffee_data = db.get_coffee(self.coffee_id)
+        if coffee_data:
+            self.lineEdit.setText(coffee_data[1])
+            self.lineEdit_2.setText(coffee_data[2])
+            self.comboBox.setCurrentText(coffee_data[3])
+            self.textEdit.setPlainText(coffee_data[4])
+            self.doubleSpinBox.setValue(coffee_data[5])
+            self.spinBox.setValue(coffee_data[6])
 
     def save_coffee(self):
         name = self.lineEdit.text()
@@ -46,25 +38,7 @@ class AddEditCoffeeForm(QDialog):
             QMessageBox.warning(self, "Ошибка", "Все поля должны быть заполнены")
             return
 
-        try:
-            con = sqlite3.connect("coffee.sqlite")
-            cur = con.cursor()
-
-            if self.coffee_id:
-                cur.execute("""
-                    UPDATE coffee SET
-                    name=?, roast_level=?, ground_or_beans=?, taste_description=?, price=?, package_volume=?
-                    WHERE id=?
-                """, (name, roast_level, ground_or_beans, taste_description, price, package_volume, self.coffee_id))
-            else:
-                cur.execute("""
-                    INSERT INTO coffee (name, roast_level, ground_or_beans, taste_description, price, package_volume)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (name, roast_level, ground_or_beans, taste_description, price, package_volume))
-
-            con.commit()
-            con.close()
+        if db.save_coffee(self.coffee_id, ground_or_beans, name, package_volume, price, roast_level, taste_description):
             self.accept()
-        except sqlite3.Error as e:
-            print(f"Ошибка: {e}")
+        else:
             QMessageBox.critical(self, "Ошибка", "Не удалось сохранить данные")
